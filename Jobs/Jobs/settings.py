@@ -88,3 +88,12 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# 设置日志级别为Error，低于次级别的日志就出不来
+LOG_LEVEL = 'ERROR'
+
+# 禁用日志输出，所有日志都出不来
+# LOG_ENABLED=False
+
+# 保持中文，不被Unicode编码
+FEED_EXPORT_ENCODING = 'utf-8'
