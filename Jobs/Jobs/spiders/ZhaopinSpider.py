@@ -13,7 +13,7 @@ class ZhaopinspiderSpider(scrapy.Spider):
     allowed_domains = ['www.zhaopin.com', 'sou.zhaopin.com', 'fe-api.zhaopin.com']
     start_urls = ['https://www.zhaopin.com/citymap']
     cache_db = TinyDB('ZhaopinSpider-cache.json')  # 缓存数据库
-    allowed_cities = ['重庆', '成都', '上海', '深圳', '昆明', '杭州', '贵阳', '宁波']  ## 允许的城市
+    allowed_cities = ['重庆', ]# '成都', '上海', '深圳', '昆明', '杭州', '贵阳', '宁波']  ## 允许的城市
     F = furl('https://fe-api.zhaopin.com/c/i/sou?pageSize=90&kt=3')  # URL母版
     PAGE_SIZE = 90  # 分页大小
 
@@ -22,6 +22,7 @@ class ZhaopinspiderSpider(scrapy.Spider):
         Q = Query()
         city = self.cache_db.get(Q.name.search(city_name))
         if isinstance(city, dict):
+            print(city['code'])
             return city['code']
         else:
             print('未找到城市码......')
@@ -117,6 +118,8 @@ class ZhaopinspiderSpider(scrapy.Spider):
             items["eduLevel"] = item["eduLevel"]["name"]  # 要求学历
             items["positionURL"]  = item["positionURL"]  # 职位链接
             items["salary"] = item["salary"]  # 薪资
+            # items["startDate"] = item["updateDate"]  # 开始时间
+            # items["endDate"] = item["endDate"]  # 结束时间
             items['spiderName'] = self.name
             # 返回每一条数据
             yield items

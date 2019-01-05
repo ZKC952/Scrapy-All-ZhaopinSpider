@@ -18,5 +18,6 @@ class JobsItem(scrapy.Item):
     eduLevel = scrapy.Field()        # 要求学历
     positionURL = scrapy.Field()     # 职位链接
     salary = scrapy.Field()          # 薪资
-
+    startDate = scrapy.Field()       # 开始时间
+    endDate = scrapy.Field()         # 结束时间
     spiderName = scrapy.Field()      # 爬虫名称
