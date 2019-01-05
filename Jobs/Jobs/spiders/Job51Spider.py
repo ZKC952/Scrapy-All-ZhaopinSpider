@@ -15,6 +15,7 @@ class Job51spiderSpider(scrapy.Spider):
     cache_db = TinyDB('Job51Spider-cache.json')  # 缓存数据库
     allowed_cities = ['重庆', ]# '成都', '上海', '深圳', '昆明', '杭州', '贵阳', '宁波']  # 允许的城市
     F = furl('https://search.51job.com/list/120300,000000,0000,00,9,99,java,2,2.html')  # URL母版
+    PAGE_SIZE = 1  # 单条页数
 
     def parse(self, response):
         # 验证文件是否存在并能查到数据
@@ -53,42 +54,41 @@ class Job51spiderSpider(scrapy.Spider):
             self.cache_db.insert(x)
 
 
-    def request_city(self, city_name, page_start=0):
+    def request_city(self, city_name, page_num=1):
         '''构造 爬取某个具体的城市 的请求对象'''
         city_code = self.get_city_code(city_name)
         url_data = {
             'city_code': city_code, # 城市代码
             'zhiye': 'python',  # 职位
-            'yeshu': 2  # 页数
+            'yeshu': page_num  # 页数
         }
         self.F.asdict()['path']['segments'][1] = '{city_code},000000,0000,00,9,99,{zhiye},2,{yeshu}.html'.format(**url_data)
 
         # 要爬取的页面的URL
         url = self.F.url
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         req = scrapy.Request(url, callback=self.parse_city, dont_filter=True)
         # 使用 meta 传递附加数据，在 callback 中可以通过 respo.meta 取得
         req.meta['city_name'] = city_name
+        req.meta['page_num'] = page_num
         # print('{0}的所有{1}相关职位爬取完成！！！'.format(city_name, url_data['zhiye']))
         return req
 
     def parse_city(self, response):
         '''解析具体的页面'''
-        # 解析json格式的响应结果
-        # resp_dict = json.loads(response.body_as_unicode())
-        # 总共所能爬取的条数
-        # num_found = resp_dict['data']['numFound']
-        # 获取当前请求的 page_start
-        # page_start = response.meta['page_start']
-        # 下一次请求，需要的 start 参数
-        # next_start = page_start + self.PAGE_SIZE
+        # 得到总页数并截取为int类型数字
+        page_sum = int(re.sub(r'\D', "", response.css('.dw_page .td::text').extract_first()))
+        # 获取当前请求的页数 page_num
+        page_num = response.meta['page_num']
+        # 下一次请求，需要的 num 参数
+        netx_page_num = page_num + self.PAGE_SIZE
         # import ipdb; ipdb.set_trace()
         # 判断是否有下一页
-        # if next_start < num_found:
-        #     # 获取当前请求的 城市名
-        #     city_name = response.meta['city_name']
-        #     # 发送下一页请求
-        #     yield self.request_city(city_name, page_start=next_start)
+        if netx_page_num <= page_sum:
+            # 获取当前请求的 城市名
+            city_name = response.meta['city_name']
+            # 发送下一页请求
+            yield self.request_city(city_name, page_num=netx_page_num)
 
         # 解析数据
         for item in response.css('#resultList .el:not(.title)'):
@@ -103,8 +103,8 @@ class Job51spiderSpider(scrapy.Spider):
             items['company'] = item.css('.t2 a').xpath('./@title').extract_first().strip()
             # 地址
             items['city'] =  item.css('.t3::text').extract_first().strip()
-            # 薪资
-            items['salary'] = item.css('.t4::text').extract_first().strip()
+            # 薪资(部分情况下薪资为空，所以这里不加strip()方法)
+            items['salary'] = item.css('.t4::text').extract_first()
             # 开始时间
             items['startDate'] = item.css('.t5::text').extract_first().strip()
             # import ipdb; ipdb.set_trace()
