@@ -62,6 +62,7 @@ class Job51spiderSpider(scrapy.Spider):
             'zhiye': 'python',  # 职位
             'yeshu': page_num  # 页数
         }
+        # furl构造新URL
         self.F.asdict()['path']['segments'][1] = '{city_code},000000,0000,00,9,99,{zhiye},2,{yeshu}.html'.format(**url_data)
 
         # 要爬取的页面的URL
@@ -107,5 +108,6 @@ class Job51spiderSpider(scrapy.Spider):
             items['salary'] = item.css('.t4::text').extract_first()
             # 开始时间
             items['startDate'] = item.css('.t5::text').extract_first().strip()
+            items['spiderName'] = self.name
             # import ipdb; ipdb.set_trace()
             yield items
