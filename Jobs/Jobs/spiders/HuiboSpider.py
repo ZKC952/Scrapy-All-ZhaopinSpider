@@ -55,8 +55,8 @@ class HuibospiderSpider(scrapy.Spider):
             items = JobsItem()
             item = e_item.css('.postIntroL').css('.postIntroLx')
             item_a = item.css('.name .des_title')
-            items['positionURL'] = item_a.xpath('./@href').extract_first()
             items['jobName'] = item_a.xpath('./text()').extract_first()
+            items['positionURL'] = item_a.xpath('./@href').extract_first()
             items['salary'] = item.xpath('.//span[@class="money"]/text()').extract_first()
             items['city'] = item.xpath('.//span[@class="address"]/text()').extract_first()
             items['workingExp'] = item.xpath('.//span[@class="exp"]/text()').extract_first()
@@ -71,7 +71,7 @@ class HuibospiderSpider(scrapy.Spider):
                 startDate = ''
             items['startDate'] = startDate
             items['spiderName'] = self.name
-            print(items)
+            # print(items)
             yield items
 
     def parse_date(self, job_time):

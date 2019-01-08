@@ -22,7 +22,7 @@ class ZhaopinspiderSpider(scrapy.Spider):
         Q = Query()
         city = self.cache_db.get(Q.name.search(city_name))
         if isinstance(city, dict):
-            print(city['code'])
+            # print(city['code'])
             return city['code']
         else:
             print('未找到城市码......')
