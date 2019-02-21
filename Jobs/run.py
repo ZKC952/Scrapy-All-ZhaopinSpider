@@ -31,4 +31,4 @@ for spider_name in loader.list():
 process.start()
 
 # 存储格式：
-#       11,12,26行取消注释,27注释  --- 保存json文件  反之  --- 保存到mongoDB
+#       11,12,24,26行取消注释,27注释  --- 保存json文件  反之  --- 保存到mongoDB
